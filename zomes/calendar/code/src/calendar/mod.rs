@@ -10,6 +10,7 @@ use hdk::{
         json::JsonString,
         error::JsonError,
     },
+    holochain_persistence_api::cas::content::Address,
 };
 
 
@@ -18,6 +19,8 @@ use hdk::{
 pub struct Calendar {
     pub title: String,
 }
+
+// Definition
 
 pub fn calendar_definition() -> ValidatingEntryType {
     entry!(
@@ -33,18 +36,29 @@ pub fn calendar_definition() -> ValidatingEntryType {
     )
 }
 
-pub fn create_calendar(_title: String) -> ZomeApiResult<()> {
+// Store
+
+pub fn create_calendar(title: String) -> ZomeApiResult<Address> {
     let calendar = Calendar{
-        title: _title,
+        title: title,
     };
     let calendar_entry = Entry::App(
         "calendar".into(),
         calendar.into(),
     );
-    hdk::commit_entry(&calendar_entry)?;
-    Ok(())
+    let calendar_address = hdk::commit_entry(&calendar_entry)?;
+    Ok(calendar_address)
 }
 
+// Get
+
+pub fn get_calendar(calendar_address: Address) -> ZomeApiResult<Calendar> {
+    hdk::utils::get_as_type(calendar_address)
+}
+
+// Link
+
+// pub fn add_event(event_address: Address)
 
 
 // Link definition ( calendar -> event )

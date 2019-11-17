@@ -10,13 +10,14 @@ extern crate serde_json;
 extern crate holochain_json_derive;
 
 mod calendar;
-// mod event;
+mod event;
 // mod subscription;
 // mod anchor;
 
 use hdk::{
     entry_definition::ValidatingEntryType,
     error::ZomeApiResult,
+    holochain_persistence_api::cas::content::Address,
 };
 
 use hdk_proc_macros::zome;
@@ -42,9 +43,36 @@ mod holocal {
     }
     // create calendar
     #[zome_fn("hc_public")]
-	pub fn create_calendar(title: String) -> ZomeApiResult<()> {
+	pub fn create_calendar(title: String) -> ZomeApiResult<Address> {
 		calendar::create_calendar(title)
-	}
+    }
+    
+    // get calendar
+    #[zome_fn("hc_public")]
+	pub fn get_calendar(calendar_address: Address) -> ZomeApiResult<calendar::Calendar> {
+		calendar::get_calendar(calendar_address)
+    }
+
+    // EVENT
+    #[entry_def]
+    pub fn event_entry_def() -> ValidatingEntryType {
+        event::event_definition()
+    }
+    // create event
+    #[zome_fn("hc_public")]
+	pub fn create_event(calendar_address: Address, event: event::Event) -> ZomeApiResult<Address> {
+		event::create_event(calendar_address, event)
+    }
+
+    #[zome_fn("hc_public")]
+	pub fn get_event(event_address: Address) -> ZomeApiResult<event::Event> {
+		event::get_event(event_address)
+    }
+
+    #[zome_fn("hc_public")]
+	pub fn get_events_by_calendar(calendar_address: Address) -> ZomeApiResult<Vec<event::Event>> {
+		event::get_events_by_calendar(calendar_address)
+    }
     // get calendar
     // get all calendars
     // create event into calendar
